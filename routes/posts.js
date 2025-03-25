@@ -32,10 +32,14 @@ router.delete('/:id', auth, async (req, res) => {
     res.json({ message: 'Пост удален' });
 });
 
-// Получение всех постов с инфой об авторах
-router.get('/', async (req, res) => {
+// Получение всех постов с инфой об авторах и признаком авторства
+router.get('/', auth, async (req, res) => {
     const posts = await Post.find().populate('author', 'username');
-    res.json(posts);
+    const postsWithOwnership = posts.map(post => ({
+        ...post.toJSON(),
+        isAuthor: post.author._id.toString() === req.userId
+    }));
+    res.json(postsWithOwnership);
 });
 
 export default router;
